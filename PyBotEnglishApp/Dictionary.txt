@@ -1,1 +1,17 @@
-‘ZzzzzZZ
+traditioneel=traditional
+onzeker=insecure
+onconventioneel=unconventional
+veeleisend=demanding
+rebels=rebellious
+respectvol=respectful
+spontaan=outgoing
+egocentrisch=self-centred
+(me) irriteren=get on (my) nerves
+even spreken=have a word
+dingen erger maken=make things worse
+iets zeggen waar (je) spijt van zou kunnen krijgen=say something (you) might regret
+ruzie maken met=get into fights with
+(mijn, jouw ...) leven verpesten=make (my, your ...) life miserable
+(iemand) met rust laten=let (someone) be
+(iemand/iets) verdragen=put up with (someone/something)
+plaatsvinden=occur
