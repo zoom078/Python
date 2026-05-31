@@ -1,7 +1,6 @@
 import customtkinter
 import pyautogui
 import keyboard
-import pyperclip
 import pytesseract
 from pynput import mouse
 import time
@@ -27,6 +26,7 @@ class App(customtkinter.CTk):
             'shift + f3': self.stop_loop,
         }
 
+        self.dictionary_init()
         self.reg_hotkeys()
         self.button = customtkinter.CTkButton(self, text="Image to Text", command=self.image_to_text)
         self.button.pack(padx=20, pady=20)
@@ -34,6 +34,15 @@ class App(customtkinter.CTk):
         self.Coordinates.pack(padx=30, pady=30)
         self.LoopOff = customtkinter.CTkButton(self, text="Stop", command=self.stop_loop)
         self.LoopOff.pack(padx=40, pady=40)
+
+    # Initilize dictionary
+    def dictionary_init(self):
+        with open(self.dict_file, "r", encoding="utf-8") as f:
+            for line in f:
+                if "=" in line:
+                    dutch, english = line.strip().split("=", 1)
+                    self.dict_words[dutch] = english
+        print("Dictionary initialized")
 
     # Hotkeys for buttons
     def reg_hotkeys(self):
@@ -62,57 +71,46 @@ class App(customtkinter.CTk):
     # Takes screenshot -> image to text -> compare text to dictionary-> translates -> types translation
     def image_to_text(self):
         def run_in_thread():
-            if len(self.coordinates) < 2:
-                print("Please select the screenshot area first.")
-                return
-            x1, y1 = self.coordinates[0]
-            x2, y2 = self.coordinates[1]
-            left = min(x1, x2)
-            right = max(x1, x2)
-            top = min(y1, y2)
-            bottom = max(y1, y2)
-            # Screenshot area
-            self.screenshot = ImageGrab.grab(bbox=(left, top, right, bottom))
-            if self.screenshot is None:
-                print("No screenshot taken")
-                return
-            text = pytesseract.image_to_string(self.screenshot).strip()
-            print(text)
-            # Translate text
-            with open(self.dict_file, "r", encoding="utf-8") as f:
-                for line in f:
-                    print(line.strip())
-                    words = line.strip().split("=")
-                    print(words)
-                    print(len(words))
-                    if len(words) == 2:
-                        dutch, english = words
-                        self.dict_words[dutch] = english
-                        print(words, dutch, english)
-                        pyautogui.write(english, interval=random.uniform(0.153, 0.276))
-                        time.sleep(1)
-                    else:
-                        print("L")
+            while self.running:
+                if len(self.coordinates) < 2:
+                    print("Please select the screenshot area first.")
+                    return
+                x1, y1 = self.coordinates[0]
+                x2, y2 = self.coordinates[1]
+                left = min(x1, x2)
+                right = max(x1, x2)
+                top = min(y1, y2)
+                bottom = max(y1, y2)
+                # Screenshot area
+                self.screenshot = ImageGrab.grab(bbox=(left, top, right, bottom))
+                if self.screenshot is None:
+                    print("No screenshot taken")
+                    return
+                text = pytesseract.image_to_string(self.screenshot).strip()
+                print(text)
+
+                # load dictionary
+                if not self.dict_words:
+                    self.dictionary_init()
+
+                # Translate text using dictionary
+                english_word = self.dict_words.get(text)
+                if english_word:
+                    print(f"Translation: {english_word}")
+                    pyautogui.write(english_word, interval=random.uniform(0.153, 0.276))
+                    pyautogui.press('enter')
+                    time.sleep(1)
+                else:
+                    print("Word not found in dictionary.")
+                
+                time.sleep(0.5)
+            
         thread = threading.Thread(target=run_in_thread, daemon=True)
         thread.start()
 
     def stop_loop(self):
         print("Stopping loop...")
         self.running = False
-
-    # def write_dict(self):
-    #     with open (self.dict_file, "w") as f:
-    #         for line in f:
-    #             words = line.strip().split()
-    #             if len(words) == 2:
-    #                 dutch, english = words
-    #                 self.dict_words[dutch] = english
-    #     print("Working")
-
-    # def translation(self, word):
-    #     word = word.strip()
-    #     return self.dict_words.get(word, None)
-    
 
 
 
