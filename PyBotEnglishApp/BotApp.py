@@ -22,9 +22,9 @@ class App(customtkinter.CTk):
         self.dict_file = "PyBotEnglishApp/Dictionary.txt"
         self.dict_words = {}
         self.hotkeys = {
-            'f1': self.image_to_text,
-            'f2': self.choose_cords,
-            'f3': self.stop_loop,
+            'shift + f1': self.image_to_text,
+            'shift + f2': self.choose_cords,
+            'shift + f3': self.stop_loop,
         }
 
         self.reg_hotkeys()
@@ -39,7 +39,7 @@ class App(customtkinter.CTk):
     def reg_hotkeys(self):
         for key, function in self.hotkeys.items():
             keyboard.add_hotkey(key, function)
-        print("Hotkeys set: F1 for Image to Text, F2 for Choose Range, F3 for Stop")
+        print("Hotkeys set: Shift + F1 for Image to Text, Shift + F2 for Choose Range, Shift + F3 for Stop")
 
     # Click to get coordinates
     def on_click(self, x, y, button, pressed):
@@ -79,15 +79,20 @@ class App(customtkinter.CTk):
             text = pytesseract.image_to_string(self.screenshot).strip()
             print(text)
             # Translate text
-            with open(self.dict_file, "r") as f:
+            with open(self.dict_file, "r", encoding="utf-8") as f:
                 for line in f:
-                    words = line.strip().split()
+                    print(line.strip())
+                    words = line.strip().split("=")
+                    print(words)
+                    print(len(words))
                     if len(words) == 2:
                         dutch, english = words
                         self.dict_words[dutch] = english
-
-            pyautogui.write(english, interval=random.uniform(0.153, 0.276))
-            time.sleep(1)
+                        print(words, dutch, english)
+                        pyautogui.write(english, interval=random.uniform(0.153, 0.276))
+                        time.sleep(1)
+                    else:
+                        print("L")
         thread = threading.Thread(target=run_in_thread, daemon=True)
         thread.start()
 
